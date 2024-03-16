@@ -1,0 +1,29 @@
+{
+  "desk": {
+    "i": "icon.gif",
+    "c": "red",
+    "x": "100",
+    "y": "30"
+  },
+  "chair": {
+    "c": "green",
+    "x": "30",
+    "y": "30"
+  },
+  "sofa": {
+    "c": "yellow",
+    "x": "200",
+    "y": "50"
+  },
+  "armchair": {
+    "i": "icon.gif",
+    "c": "purple",
+    "x": "50",
+    "y": "50"
+  },
+  "conf_desk": {
+    "c": "orange",
+    "x": "250",
+    "y": "60"
+  }
+}

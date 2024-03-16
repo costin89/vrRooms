@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dynamic Buttons and Shapes</title>
+  <style>
+    canvas { border: 1px solid black; }
+    table { border-collapse: collapse; }
+    td, th { border: 1px solid black; padding: 8px; }
+  </style>
+</head>
+<body>
+  <div id="buttons-container"></div>
+  <div id="canvas-container">
+    <canvas id="canvas"></canvas>
+  </div>
+  <div id="shapes-info">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>X</th>
+          <th>Y</th>
+          <th>Rotation</th>
+        </tr>
+      </thead>
+      <tbody id="shapes-table-body">
+        <!-- Dynamically filled -->
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = 800;
+    canvas.height = 600;
+
+    let shapes = [];
+    let selectedShapeIndex = -1;
+    let isDragging = false;
+    let offsetX, offsetY;
+
+    class Shape {
+      constructor(name, x, y, width, height, color) {
+        this.name = name;
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.color = color;
+        this.rotation = 0;
+      }
+
+      draw() {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.rotation * Math.PI / 180);
+        ctx.fillStyle = this.color;
+        ctx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
+        if (shapes[selectedShapeIndex] === this) {
+          ctx.strokeStyle = 'pink';
+          ctx.strokeRect(-this.width / 2, -this.height / 2, this.width, this.height);
+        }
+        ctx.restore();
+      }
+
+      hitTest(x, y) {
+        return x >= this.x - this.width / 2 && x <= this.x + this.width / 2 &&
+               y >= this.y - this.height / 2 && y <= this.y + this.height / 2;
+      }
+    }
+
+    function updateTable() {
+      const tbody = document.getElementById('shapes-table-body');
+      tbody.innerHTML = ''; // Clear existing rows
+      shapes.forEach((shape, index) => {
+        const row = tbody.insertRow();
+        const nameCell = row.insertCell();
+        const xCell = row.insertCell();
+        const yCell = row.insertCell();
+        const rotationCell = row.insertCell();
+
+        nameCell.textContent = shape.name;
+        xCell.textContent = shape.x.toFixed(2);
+        yCell.textContent = shape.y.toFixed(2);
+        rotationCell.textContent = shape.rotation.toFixed(2);
+      });
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      shapes.forEach(shape => shape.draw());
+      updateTable(); // Update the table whenever we draw
+    }
+
+    canvas.addEventListener('mousedown', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      for (let i = shapes.length - 1; i >= 0; i--) {
+        if (shapes[i].hitTest(x, y)) {
+          selectedShapeIndex = i;
+          const shape = shapes[i];
+          offsetX = x - shape.x;
+          offsetY = y - shape.y;
+          canvas.style.cursor = "move";
+          break;
+        }
+      }
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+      if (selectedShapeIndex >= 0) {
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const shape = shapes[selectedShapeIndex];
+        shape.x = x - offsetX;
+        shape.y = y - offsetY;
+        draw();
+      }
+    });
+
+    canvas.addEventListener('mouseup', () => {
+      selectedShapeIndex = -1;
+      canvas.style.cursor = "default";
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (selectedShapeIndex >= 0) {
+        const shape = shapes[selectedShapeIndex];
+        if (e.key === 'x') {
+          shape.rotation += 5;
+        } else if (e.key === 'y') {
+          shape.rotation -= 5;
+        }
+        draw();
+      }
+    });
+
+    fetch('setup.json')
+      .then(response => response.json())
+      .then(data => {
+        const buttonsContainer = document.getElementById('buttons-container');
+        for (const title in data) {
+          if (data.hasOwnProperty(title)) {
+            const {i: icon, c: color, x, y} = data[title];
+            const button = document.createElement('button');
+            button.textContent = title;
+            button.onclick = () => {
+              shapes.push(new Shape(title, 400, 300, parseInt(x), parseInt(y), color));
+              draw();
+            };
+            buttonsContainer.appendChild(button);
+          }
+        }
+      })
+      .catch(error => console.error('Error fetching JSON:', error));
+  </script>
+</body>
+</html>
