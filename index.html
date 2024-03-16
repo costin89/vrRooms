@@ -23,7 +23,6 @@
           <th>X</th>
           <th>Y</th>
           <th>Rotation</th>
-          <th>Characteristic</th>
         </tr>
       </thead>
       <tbody id="shapes-table-body">
@@ -52,7 +51,6 @@
         this.height = height;
         this.color = color;
         this.rotation = 0;
-        this.characteristic = "none"; // Standardwert für charakteristische Eigenschaft
       }
 
       draw() {
@@ -83,28 +81,11 @@
         const xCell = row.insertCell();
         const yCell = row.insertCell();
         const rotationCell = row.insertCell();
-        const characteristicCell = row.insertCell();
 
         nameCell.textContent = shape.name;
         xCell.textContent = shape.x.toFixed(2);
         yCell.textContent = shape.y.toFixed(2);
         rotationCell.textContent = shape.rotation.toFixed(2);
-
-        // Erstellen des Select-Elements für die charakteristische Eigenschaft
-        const select = document.createElement('select');
-        ['none', 'dragable', 'none collidable'].forEach(value => {
-          const option = document.createElement('option');
-          option.value = value;
-          option.textContent = value;
-          if (value === shape.characteristic) {
-            option.selected = true;
-          }
-          select.appendChild(option);
-        });
-        select.onchange = (e) => {
-          shape.characteristic = e.target.value;
-        };
-        characteristicCell.appendChild(select);
       });
     }
 
@@ -154,11 +135,8 @@
           shape.rotation += 5;
         } else if (e.key === 'y') {
           shape.rotation -= 5;
-        } else if (e.key === 'q') {
-          shapes.splice(selectedShapeIndex, 1);
-          selectedShapeIndex = -1;
-          draw();
         }
+        draw();
       }
     });
 
