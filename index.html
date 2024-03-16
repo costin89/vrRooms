@@ -135,6 +135,9 @@
           shape.rotation += 5;
         } else if (e.key === 'y') {
           shape.rotation -= 5;
+        } else if (e.key === 'q') { // Prüfen, ob die Taste 'q' gedrückt wurde
+          shapes.splice(selectedShapeIndex, 1); // Das ausgewählte Rechteck aus dem Array entfernen
+          selectedShapeIndex = -1; // Kein Rechteck ist mehr ausgewählt
         }
         draw();
       }
