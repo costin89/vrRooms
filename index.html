@@ -34,8 +34,8 @@
   <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    canvas.width = 1000;
-    canvas.height = 800;
+    canvas.width = 800;
+    canvas.height = 600;
 
     let shapes = [];
     let selectedShapeIndex = -1;
@@ -135,8 +135,11 @@
           shape.rotation += 5;
         } else if (e.key === 'y') {
           shape.rotation -= 5;
+        } else if (e.key === 'q') { // Löschen des ausgewählten Rechtecks
+          shapes.splice(selectedShapeIndex, 1);
+          selectedShapeIndex = -1; // Kein Rechteck ausgewählt
+          draw();
         }
-        draw();
       }
     });
 
